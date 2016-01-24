@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.method.Touch;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,16 +16,25 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.IOException;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     ViewFlipper vf;
+
+    private final LatLng LOCATION_LOC1 = new LatLng(48.41967,-4.47109);
+    //private final LatLng LOCATION_LOC2 = new LatLng(48.39031,-4.48639);
+    private final LatLng LOCATION_LOC2 = new LatLng(48.40785,-4.46358);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +63,28 @@ public class MainActivity extends AppCompatActivity
 
         vf = (ViewFlipper) findViewById(R.id.viewFlipper1);
 
+
+
         setupStartRunButton();
 
+    }
 
+
+    public void onClick_testButton(View v){
+        //get nex direction and show in the screen
+
+        ImageView img= (ImageView) findViewById(R.id.arrowImageViwer);
+        switch (Directions.getNextDirection()){
+            case NONE:
+                img.setImageResource(R.drawable.redx);
+                break;
+            case LEFT:
+                img.setImageResource(R.drawable.leftarrow);
+                break;
+            case RIGHT:
+                img.setImageResource(R.drawable.rightarrow);
+                break;
+        }
     }
 
     private void setupStartRunButton() {
@@ -66,41 +96,10 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "So you clicked the button", Toast.LENGTH_SHORT).show();
 
-                //flip layout
-                vf.setDisplayedChild(1);
+                startActivity(new Intent(MainActivity.this, MapsActivity.class));
 
-
-                Thread t = new Thread() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            while (!isInterrupted()) {
-                                Thread.sleep(1000);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //update values in the UI
-                                        TextView textView = (TextView) findViewById(R.id.InfoAvgSpeedTxt);
-                                        float r = generateRandomFloat(0,50);
-                                        String rn = String.format("%.02f", r);
-                                        textView.setText(rn+" km/h");
-                                    }
-                                });
-                            }
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                };
-
-                t.start();
             }
 
-            private float generateRandomFloat(float min, float max) {
-                Random rand = new Random();
-
-                return rand.nextFloat() * (max - min) + min;
-            }
         });
     }
 
@@ -109,7 +108,9 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if(vf.getDisplayedChild()!=0){
+            vf.setDisplayedChild(0);
+        }else {
             super.onBackPressed();
         }
     }
@@ -143,7 +144,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            //flip layout
+            vf.setDisplayedChild(1);
+            onRunHandler();
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -159,5 +162,61 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void onRunHandler() {
+        //thread to update the values
+        //maybe I should use AsyncTask
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(1000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //update values in the UI
+                                TextView textView = (TextView) findViewById(R.id.InfoAvgSpeedTxt);
+                                float r = (new Random().nextFloat()*(50 - 0)+0);
+                                String rn = String.format("%.02f", r);
+                                textView.setText(rn+" km/h");
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+
+        t.start();
+
+        //get directions and create list of turns
+        try {
+            Directions dir = new Directions();
+            String data = "Empty string";
+            data = dir.execute(LOCATION_LOC1,LOCATION_LOC2).get();
+            Log.d("URL", data);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        //get nex direction and show in the screen
+        ImageView img= (ImageView) findViewById(R.id.arrowImageViwer);
+        switch (Directions.getNextDirection()){
+            case NONE:
+                img.setImageResource(R.drawable.redx);
+                break;
+            case LEFT:
+                img.setImageResource(R.drawable.leftarrow);
+                break;
+            case RIGHT:
+                img.setImageResource(R.drawable.rightarrow);
+                break;
+        }
+
+
     }
 }
