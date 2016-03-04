@@ -9,25 +9,6 @@
     tools:context=".MainActivity" >
 
 
-    <Button
-        android:id="@+id/btnLoc2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:onClick="onClick_Loc2"
-        android:text="Loc2" />
-
-
-    <Button
-        android:id="@+id/btnLoc1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:onClick="onClick_Loc1"
-        android:text="Loc1" />
-
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -36,9 +17,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.example.finkel.bikecycle.MapsActivity"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="50px"
+        android:id="@+id/destinationAddress"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_centerHorizontal="true"
+        android:background="#ffffff"
+        android:text="Enter the destination address"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="30px"
+        android:layout_marginTop="30px"
+        android:singleLine="true"
+        android:layout_marginRight="30px" />
 </RelativeLayout>
 
 

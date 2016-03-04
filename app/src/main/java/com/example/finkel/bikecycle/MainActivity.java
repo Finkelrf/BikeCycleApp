@@ -1,10 +1,10 @@
 package com.example.finkel.bikecycle;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.text.method.Touch;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -16,25 +16,24 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    ViewFlipper vf;
-
+    private ViewFlipper vf;
+    private BluetoothManager bm;
     private final LatLng LOCATION_LOC1 = new LatLng(48.41967,-4.47109);
     //private final LatLng LOCATION_LOC2 = new LatLng(48.39031,-4.48639);
     private final LatLng LOCATION_LOC2 = new LatLng(48.40785,-4.46358);
+    private Intent gpsIntent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,28 +62,36 @@ public class MainActivity extends AppCompatActivity
 
         vf = (ViewFlipper) findViewById(R.id.viewFlipper1);
 
-
-
         setupStartRunButton();
 
+        testOnRunManager();
+
+        startLiveDebug();
+
+    }
+
+    private void startNavigationTest() {
+        NavigationManager dir = new NavigationManager();
+        String data = "Empty string";
+        try {
+            data = dir.execute(new LatLng(OnRunManager.getLastLoc().getLatitude(),OnRunManager.getLastLoc().getLongitude()),LOCATION_LOC2).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void testOnRunManager() {
+        //new OnRunManager().start();
+        gpsIntent=new Intent(getBaseContext(), GpsService.class);
+        startService(gpsIntent);
     }
 
 
     public void onClick_testButton(View v){
-        //get nex direction and show in the screen
-
-        ImageView img= (ImageView) findViewById(R.id.arrowImageViwer);
-        switch (Directions.getNextDirection()){
-            case NONE:
-                img.setImageResource(R.drawable.redx);
-                break;
-            case LEFT:
-                img.setImageResource(R.drawable.leftarrow);
-                break;
-            case RIGHT:
-                img.setImageResource(R.drawable.rightarrow);
-                break;
-        }
+        startNavigationTest();
     }
 
     private void setupStartRunButton() {
@@ -94,13 +101,18 @@ public class MainActivity extends AppCompatActivity
         messageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "So you clicked the button", Toast.LENGTH_SHORT).show();
-
-                startActivity(new Intent(MainActivity.this, MapsActivity.class));
+              /* bluetoothHandler();*/
+                startNavigationTest();
 
             }
 
         });
+    }
+
+    private void bluetoothHandler() {
+        bm = new BluetoothManager(MainActivity.this);
+        bm.init();
+        bm.connectToDevTarget();
     }
 
     @Override
@@ -146,16 +158,15 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             //flip layout
             vf.setDisplayedChild(1);
-            onRunHandler();
-        } else if (id == R.id.nav_gallery) {
+            runInfoHandler();
+        } else if (id == R.id.nav_navigation) {
+            //open MapsActivity to configure the navigation
+            startActivity(new Intent(MainActivity.this, MapsActivity.class));
+        } else if (id == R.id.nav_about) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_configurations) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_about) {
 
         }
 
@@ -164,7 +175,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void onRunHandler() {
+    private void runInfoHandler() {
         //thread to update the values
         //maybe I should use AsyncTask
         Thread t = new Thread() {
@@ -176,11 +187,28 @@ public class MainActivity extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                //update values in the UI
-                                TextView textView = (TextView) findViewById(R.id.InfoAvgSpeedTxt);
-                                float r = (new Random().nextFloat()*(50 - 0)+0);
-                                String rn = String.format("%.02f", r);
-                                textView.setText(rn+" km/h");
+                                //update speed
+                                TextView txtViewSpeed = (TextView) findViewById(R.id.infoSpeedTxt);
+                                float speed = OnRunManager.getSpeed();
+                                String speedString = String.format("%.02f", speed);
+                                txtViewSpeed.setText(speedString);
+
+                                //update distance
+                                TextView txtViewDist = (TextView) findViewById(R.id.infoDistanceTxt);
+                                double dist = OnRunManager.getTotalDistance();
+                                String distString = String.format("%.02f", dist);
+                                txtViewDist.setText(distString);
+
+                                //update distance
+                                TextView txtTurn = (TextView) findViewById(R.id.infoNextTurnTxt);
+                                String turnDir = NavigationManager.getNextTurn().toString();
+                                txtTurn.setText(turnDir);
+
+                                //update distance
+                                TextView txtTurnDist = (TextView) findViewById(R.id.infoNextTurnDistanceTxt);
+                                String turnDist = String.format("%.02f", NavigationManager.getDistanceToNextTurn());
+                                txtTurnDist.setText(turnDist);
+
                             }
                         });
                     }
@@ -191,21 +219,11 @@ public class MainActivity extends AppCompatActivity
 
         t.start();
 
-        //get directions and create list of turns
-        try {
-            Directions dir = new Directions();
-            String data = "Empty string";
-            data = dir.execute(LOCATION_LOC1,LOCATION_LOC2).get();
-            Log.d("URL", data);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+
 
         //get nex direction and show in the screen
-        ImageView img= (ImageView) findViewById(R.id.arrowImageViwer);
-        switch (Directions.getNextDirection()){
+        /*ImageView img= (ImageView) findViewById(R.id.arrowImageViwer);
+        switch (NavigationManager.getNextDirection()){
             case NONE:
                 img.setImageResource(R.drawable.redx);
                 break;
@@ -215,8 +233,37 @@ public class MainActivity extends AppCompatActivity
             case RIGHT:
                 img.setImageResource(R.drawable.rightarrow);
                 break;
-        }
+        }*/
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(gpsIntent);
+        //bm.finalize();
 
+    }
+
+    public void startLiveDebug(){
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(100);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(LiveLogger.isNewLog())
+                                    Toast.makeText(MainActivity.this,LiveLogger.getLog(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+
+        t.start();
     }
 }

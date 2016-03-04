@@ -1,101 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.finkel.bikecycle.MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="12.5"
+        android:id="@+id/infoSpeedTxt"
+        android:layout_row="0"
+        android:layout_column="1"
+        android:gravity="right"
+        android:textSize="@dimen/even_larger_font"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Speed(km/h)"
+        android:id="@+id/speedTxt"
+        android:layout_row="0"
+        android:layout_column="0"
+        android:layout_below="@+id/infoSpeedTxt"
+        android:layout_centerHorizontal="true"
+        />
 
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="false"
-        android:id="@+id/tableLayout">
+        android:layout_height="match_parent"
+        android:stretchColumns="1"
+        android:layout_below="@+id/infoSpeedTxt"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        >
+        <TableRow>
+            <RelativeLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="30.365"
+                    android:id="@+id/infoDistanceTxt"
+                    android:textSize="@dimen/really_large_font"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Speed:"
-            android:id="@+id/speedTxt"
-            android:layout_row="0"
-            android:layout_column="0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Distance(km)"
+                    android:id="@+id/distanceTxt"
+                    android:layout_below="@+id/infoDistanceTxt"
+                    android:gravity="center"
+                    />
+            </RelativeLayout>
+            <RelativeLayout
+                android:gravity="right">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="01:35:33"
+                    android:id="@+id/infoTimePassed"
+                    android:textSize="@dimen/really_large_font"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_alignParentRight="true"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="12.5 km/h "
-            android:id="@+id/infoSpeedTxt"
-            android:layout_row="0"
-            android:layout_column="1"
-            android:gravity="right" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Time"
+                    android:id="@+id/timePassedTxt"
+                    android:layout_below="@+id/infoTimePassed"
+                    android:layout_alignParentRight="true"
+                    />
+            </RelativeLayout>
+        </TableRow>
+        <TableRow>
+            <RelativeLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Straight"
+                    android:id="@+id/infoNextTurnTxt"
+                    android:textSize="@dimen/really_large_font"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Distance: "
-            android:id="@+id/distanceTxt"
-            android:layout_row="1"
-            android:layout_column="0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Next Turn"
+                    android:id="@+id/nextTurnTxt"
+                    android:layout_below="@+id/infoNextTurnTxt"
+                    android:gravity="center"
+                    />
+            </RelativeLayout>
+            <RelativeLayout
+                android:gravity="right">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="10"
+                    android:id="@+id/infoNextTurnDistanceTxt"
+                    android:textSize="@dimen/really_large_font"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_alignParentRight="true"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text=" 30.365 km "
-            android:id="@+id/infoDistanceTxt"
-            android:layout_row="1"
-            android:layout_column="1"
-            android:gravity="right" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="turn dist(km)"
+                    android:id="@+id/NextTurnDistanceTxt"
+                    android:layout_below="@+id/infoNextTurnDistanceTxt"
+                    android:layout_alignParentRight="true"
+                    />
+            </RelativeLayout>
+        </TableRow>
+        </TableLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Avg Speed: "
-            android:id="@+id/avgSpeedTxt"
-            android:layout_row="2"
-            android:layout_column="0" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text=" 15.6 km/h "
-            android:id="@+id/InfoAvgSpeedTxt"
-            android:layout_row="2"
-            android:layout_column="1"
-            android:gravity="right" />
-
-
-
-    </TableLayout>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/arrowImageViwer"
-        android:layout_below="@+id/tableLayout"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/redx"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="test Next Turn"
-        android:id="@+id/btnTestNextTurn"
-        android:onClick="onClick_testButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
