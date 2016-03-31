@@ -1,10 +1,8 @@
 package com.example.finkel.bikecycle;
 
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -16,6 +14,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -29,10 +30,17 @@ public class MainActivity extends AppCompatActivity
 
     private ViewFlipper vf;
     private BluetoothManager bm;
+    private BluetoothCommunicator bc;
     private final LatLng LOCATION_LOC1 = new LatLng(48.41967,-4.47109);
     //private final LatLng LOCATION_LOC2 = new LatLng(48.39031,-4.48639);
     private final LatLng LOCATION_LOC2 = new LatLng(48.40785,-4.46358);
     private Intent gpsIntent;
+
+    //config content
+    private SeekBar ledRingBar;
+    private TextView ledRingTxt;
+    private Switch btStatusSwitch;
+
 
 
     @Override
@@ -41,15 +49,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -61,6 +60,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         vf = (ViewFlipper) findViewById(R.id.viewFlipper1);
+        bc = new BluetoothCommunicator();
+
 
         setupStartRunButton();
 
@@ -101,8 +102,8 @@ public class MainActivity extends AppCompatActivity
         messageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              /* bluetoothHandler();*/
-                startNavigationTest();
+                bc.startDemo(bm);
+                // startNavigationTest();
 
             }
 
@@ -111,8 +112,8 @@ public class MainActivity extends AppCompatActivity
 
     private void bluetoothHandler() {
         bm = new BluetoothManager(MainActivity.this);
-        bm.init();
-        bm.connectToDevTarget();
+
+
     }
 
     @Override
@@ -149,13 +150,88 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void configContentInit(){
+        //Setup bluetooth connection status switch
+        btStatusSwitch = (Switch) findViewById(R.id.btSwitch);
+        if(bm!=null)
+            btStatusSwitch.setChecked(bm.isConnected());
+        else
+            btStatusSwitch.setChecked(false);
+        btStatusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+
+                if (isChecked) {
+                    bluetoothHandler();
+                    if(!bm.isConnected()) {
+                        btStatusSwitch.setChecked(false);
+                        Toast.makeText(MainActivity.this, "It is not possible to connect", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(MainActivity.this,"Connected to Smart Cycle device",Toast.LENGTH_SHORT).show();
+                        OnRunManager.setBtManager(bm);
+                    }
+                } else {
+                    if(bm==null){
+                        Toast.makeText(MainActivity.this,"Already disconnected",Toast.LENGTH_SHORT).show();
+                    }else {
+                        if(bm.isConnected()){
+                            bm.close();
+                        }
+                        Toast.makeText(MainActivity.this,"Disconnected",Toast.LENGTH_SHORT).show();
+
+                    }
+
+                }
+
+            }
+        });
+
+        //Setup Led ring bar
+        ledRingBar = (SeekBar) findViewById(R.id.led_ring_bright_bar);
+        ledRingTxt = (TextView) findViewById(R.id.led_ring_bright_txt);
+
+        ledRingBar.setMax(100);
+        ledRingBar.setProgress(OnRunManager.getLedRingBrightness());
+
+        //initiate led ring bar
+        ledRingTxt.setText("Led ring brightness " + ledRingBar.getProgress() + "%");
+
+        ledRingBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progress = 0;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+                progress = progresValue;
+                ledRingTxt.setText("Led ring brightness " + progress + "%");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                ledRingTxt.setText("Led ring brightness " + progress + "%");
+                //send to OnRunManager
+                OnRunManager.setLedRingBrightness(progress);
+                //send to bike cycle device throught BT
+                bc.sendLedRingPwm(progress,bm);
+            }
+        });
+
+    }
+
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.run_info) {
             //flip layout
             vf.setDisplayedChild(1);
             runInfoHandler();
@@ -165,7 +241,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_about) {
 
         } else if (id == R.id.nav_configurations) {
-
+            vf.setDisplayedChild(2);
+            configContentInit();
         } else if (id == R.id.nav_about) {
 
         }
@@ -209,6 +286,8 @@ public class MainActivity extends AppCompatActivity
                                 String turnDist = String.format("%.02f", NavigationManager.getDistanceToNextTurn());
                                 txtTurnDist.setText(turnDist);
 
+                                OnRunManager.sendNowShowingInfo();
+
                             }
                         });
                     }
@@ -219,28 +298,39 @@ public class MainActivity extends AppCompatActivity
 
         t.start();
 
-
-
-        //get nex direction and show in the screen
-        /*ImageView img= (ImageView) findViewById(R.id.arrowImageViwer);
-        switch (NavigationManager.getNextDirection()){
-            case NONE:
-                img.setImageResource(R.drawable.redx);
-                break;
-            case LEFT:
-                img.setImageResource(R.drawable.leftarrow);
-                break;
-            case RIGHT:
-                img.setImageResource(R.drawable.rightarrow);
-                break;
-        }*/
+        //TODO ARRUMAR ISSO
+/*
+        // Create the Handler object (on the main thread by default)
+        Handler handler = new Handler();
+// Define the code block to be executed
+        Runnable runnableCode = new Runnable() {
+            @Override
+            public void run() {
+                Log.d("Handlers", "Called on main thread");
+                switch (OnRunManager.getNowShowing()){
+                    case SPEED:
+                        bc.sendDisplay(""+OnRunManager.getSpeed(),bm);
+                        break;
+                    case TOTAl_DISTANCE:
+                        bc.sendDisplay(""+OnRunManager.getTotalDistance(),bm);
+                        break;
+                    case DIST_TO_TURN:
+                        bc.sendDisplay(String.format("%.02f", NavigationManager.getDistanceToNextTurn()),bm);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+// Run the above code block on the main thread after 2 seconds
+        handler.postDelayed(runnableCode, 500);*/
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         stopService(gpsIntent);
-        //bm.finalize();
+        bm.close();
 
     }
 

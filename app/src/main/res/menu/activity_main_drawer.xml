@@ -3,20 +3,19 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/run_info"
+            android:icon="@drawable/ic_play_light"
+            android:title="Run info" />
         <item
             android:id="@+id/nav_navigation"
             android:icon="@drawable/places_ic_search"
             android:title="Navigation" />
         <item
             android:id="@+id/nav_configurations"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_setting_light"
             android:title="Configurations" />
         <item
             android:id="@+id/nav_about"
-            android:icon="@drawable/ic_menu_slideshow"
             android:title="About" />
 
     </group>

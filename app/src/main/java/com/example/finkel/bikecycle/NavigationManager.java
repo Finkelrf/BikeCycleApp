@@ -37,12 +37,12 @@ public class NavigationManager extends AsyncTask<Object, Integer, String>  {
         NONE,
         RIGHT,
         LEFT,
-        ROUNDABOUT_1_EXIT,
-        ROUNDABOUT_2_EXIT,
-        ROUNDABOUT_3_EXIT,
-        ROUNDABOUT_4_EXIT,
-        ROUNDABOUT_5_EXIT,
-        STRAIGHT;
+        RDB1,
+        RDB2,
+        RDB3,
+        RDB4,
+        STRAIGHT,
+        BACK,
     }
 
 
@@ -203,7 +203,11 @@ public class NavigationManager extends AsyncTask<Object, Integer, String>  {
     }
 
     public static TurnDirection getNextTurn(){
-        return turnList.get(0).getTurnDirections();
+        if(turnList.isEmpty()){
+            return TurnDirection.NONE;
+        }else {
+            return turnList.get(0).getTurnDirections();
+        }
     }
     public static double getDistanceToNextTurn(){
         LatLng locTurn = getNextTurnLoc();
@@ -283,15 +287,13 @@ public class NavigationManager extends AsyncTask<Object, Integer, String>  {
                                 td = TurnDirection.LEFT;
                             }else if(inst.contains(ROUNDABOUT)){
                                 if(inst.contains("1")){
-                                    td = TurnDirection.ROUNDABOUT_1_EXIT;
+                                    td = TurnDirection.RDB1;
                                 }else if(inst.contains("2")){
-                                    td = TurnDirection.ROUNDABOUT_2_EXIT;
+                                    td = TurnDirection.RDB2;
                                 }else if(inst.contains("3")){
-                                    td = TurnDirection.ROUNDABOUT_3_EXIT;
+                                    td = TurnDirection.RDB3;
                                 }else if(inst.contains("4")){
-                                    td = TurnDirection.ROUNDABOUT_4_EXIT;
-                                }else if(inst.contains("5")){
-                                    td = TurnDirection.ROUNDABOUT_5_EXIT;
+                                    td = TurnDirection.RDB4;
                                 }else{
                                     td = TurnDirection.NONE;
                                 }

@@ -23,12 +23,49 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Finkel on 28/02/2016.
  */
-public class OnRunManager {
+public class OnRunManager  {
     private static List<Location> locList = new ArrayList<>();
     private static double distTotal = 0;
     private static Location lastLocation;
     private static int dataRetriveMode = 0; //0 = GPS, 1 = bluetooth
     final static DateFormat fmt = DateFormat.getTimeInstance(DateFormat.LONG);
+    private static int LedRingBrightness = 60;
+    private static BluetoothManager bm;
+    private static BluetoothCommunicator bc;
+
+
+    private static INFO nowShowing = INFO.SPEED;
+    public enum INFO{
+        SPEED,
+        TOTAl_DISTANCE,
+        DIST_TO_TURN,
+    }
+
+    public static INFO getNowShowing() {
+        return nowShowing;
+    }
+
+    public static void setNowShowing(INFO nowShowing) {
+        OnRunManager.nowShowing = nowShowing;
+    }
+
+
+    public static void setBtManager(BluetoothManager bman){
+        bm = bman;
+        bc = new BluetoothCommunicator();
+    }
+
+
+
+    public static int getLedRingBrightness() {
+        return LedRingBrightness;
+    }
+
+    public static void setLedRingBrightness(int ledRingBrightness) {
+        LedRingBrightness = ledRingBrightness;
+    }
+
+
 
     public static void setLastLocation(Location l){
         lastLocation = l;
@@ -36,6 +73,7 @@ public class OnRunManager {
     public static boolean isLocListEmpty(){
         return locList.isEmpty();
     }
+
 
     public static Location getLastLoc(){
         if(!locList.isEmpty()){
@@ -65,7 +103,12 @@ public class OnRunManager {
         switch (dataRetriveMode) {
             case 0:
                 if (lastLocation != null) {
-                    retSpeed = lastLocation.getSpeed();
+                    try {
+                        retSpeed = lastLocation.getSpeed();
+                    }catch (Exception e){
+                        //error did not find speed
+                        retSpeed=0;
+                    }
                 } else {
                     retSpeed = 0;
                 }
@@ -80,6 +123,23 @@ public class OnRunManager {
 
     public static double getTotalDistance() {
         return distTotal;
+    }
+
+    public static void sendNowShowingInfo(){
+        if(bc != null) {
+            switch (nowShowing) {
+                case DIST_TO_TURN:
+                    bc.sendDisplay("" + NavigationManager.getDistanceToNextTurn(), bm);
+                    break;
+                case TOTAl_DISTANCE:
+                    bc.sendDisplay("" + OnRunManager.getTotalDistance(), bm);
+                    break;
+                case SPEED:
+                    bc.sendDisplay("" + OnRunManager.getSpeed(), bm);
+                    break;
+            }
+            bc.sendDirection(NavigationManager.getNextTurn().toString(),NavigationManager.getDistanceToNextTurn(),bm);
+        }
     }
 
 }

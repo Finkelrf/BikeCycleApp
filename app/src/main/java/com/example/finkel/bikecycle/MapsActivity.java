@@ -141,8 +141,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        //show blue circle in my position
         mMap.setMyLocationEnabled(true);
-        // Add a marker in Sydney and move the camera
+        //move camera to my position
         if(!OnRunManager.isLocListEmpty()) {
             LatLng realLoc = new LatLng(OnRunManager.getLastLoc().getLatitude(),OnRunManager.getLastLoc().getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLng(realLoc));
@@ -151,6 +152,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
     public void updateLocOnMap(){
+        //TODO this callback is not used for now
         /*LatLng realLoc = new LatLng(OnRunManager.getLastLoc().getLatitude(),OnRunManager.getLastLoc().getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(realLoc));
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(realLoc,14);

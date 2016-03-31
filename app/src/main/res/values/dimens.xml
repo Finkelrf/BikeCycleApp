@@ -8,4 +8,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="really_large_font">45dp</dimen>
     <dimen name="even_larger_font">55dp</dimen>
+    <dimen name="large_font">35dp</dimen>
 </resources>
