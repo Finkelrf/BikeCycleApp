@@ -32,7 +32,17 @@ public class OnRunManager  {
     private static int LedRingBrightness = 60;
     private static BluetoothManager bm;
     private static BluetoothCommunicator bc;
+    private static int arrowPosition = 0;
+    private static int distanceToDestination = 10000;
 
+
+    private static void setArrowPosition(int p){
+        arrowPosition = p;
+    }
+
+    private static void setDistanceToDestination(int p){
+        distanceToDestination = p;
+    }
 
     private static INFO nowShowing = INFO.SPEED;
     public enum INFO{
@@ -139,6 +149,7 @@ public class OnRunManager  {
                     break;
             }
             bc.sendDirection(NavigationManager.getNextTurn().toString(),NavigationManager.getDistanceToNextTurn(),bm);
+
         }
     }
 

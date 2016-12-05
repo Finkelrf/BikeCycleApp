@@ -39,6 +39,8 @@ public class GpsService extends Service
             Log.d(TAG, "onLocationChanged: " + location);
             mLastLocation.set(location);
             OnRunManager.setLastLocation(location);
+
+            /*
             if(!OnRunManager.isLocListEmpty()){
                 //check if the distance between points is greater than a threshold (accuracy in this case)
                 if(location.distanceTo(OnRunManager.getLastLoc())>location.getAccuracy()){
@@ -59,6 +61,7 @@ public class GpsService extends Service
                     //update loc on map
 
                 }
+                */
             }else{
                 //set the first location
                 OnRunManager.addOnLocList(new Location(location));

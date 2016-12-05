@@ -7,6 +7,8 @@ public class BluetoothCommunicator {
 
 
     private enum BT_CMDS{
+        ARROW_POS,
+        DISTANCE,
         SET_DISPLAY,
         PWM,
         RIGHT,//turn right
@@ -24,6 +26,40 @@ public class BluetoothCommunicator {
     public BluetoothCommunicator() {
 
     }
+
+
+    public boolean sendArrowPos(int pos,BluetoothManager bm){
+        if(bm != null) {
+            if (bm.isConnected()) {
+                bm.sendMsg(BT_CMDS.ARROW_POS.toString() + END_CMD_CHAR + pos + FINAL_BYTE);
+                LiveLogger.setLog("cmd send " + BT_CMDS.ARROW_POS.toString() + END_CMD_CHAR + pos + FINAL_BYTE);
+                return true;
+            } else {
+                LiveLogger.setLog("bt not connected");
+                return false;
+            }
+        }else{
+            LiveLogger.setLog("bt not connected");
+            return false;
+        }
+    }
+
+    public boolean sendDistance(int dist,BluetoothManager bm){
+        if(bm != null) {
+            if (bm.isConnected()) {
+                bm.sendMsg(BT_CMDS.DISTANCE.toString() + END_CMD_CHAR + dist + FINAL_BYTE);
+                LiveLogger.setLog("cmd send " + BT_CMDS.DISTANCE.toString() + END_CMD_CHAR + dist + FINAL_BYTE);
+                return true;
+            } else {
+                LiveLogger.setLog("bt not connected");
+                return false;
+            }
+        }else{
+            LiveLogger.setLog("bt not connected");
+            return false;
+        }
+    }
+
 
     public boolean sendLedRingPwm(int pwm,BluetoothManager bm){
         if(pwm>100 || pwm < 0) {

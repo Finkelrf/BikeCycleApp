@@ -1,8 +1,12 @@
 package com.example.finkel.bikecycle;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,6 +29,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.concurrent.ExecutionException;
 
+
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -34,12 +40,15 @@ public class MainActivity extends AppCompatActivity
     private final LatLng LOCATION_LOC1 = new LatLng(48.41967,-4.47109);
     //private final LatLng LOCATION_LOC2 = new LatLng(48.39031,-4.48639);
     private final LatLng LOCATION_LOC2 = new LatLng(48.40785,-4.46358);
+    private final int REQUEST_ACCESS_FINE_LOCATION = 1;
+    private final int REQUEST_ACCESS_COARSE_LOCATION = 2;
     private Intent gpsIntent;
 
     //config content
     private SeekBar ledRingBar;
     private TextView ledRingTxt;
     private Switch btStatusSwitch;
+    private int permissionCounter = 0;
 
 
 
@@ -224,31 +233,113 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ACCESS_COARSE_LOCATION:
+            case REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    permissionCounter++;
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-        if (id == R.id.run_info) {
-            //flip layout
-            vf.setDisplayedChild(1);
-            runInfoHandler();
-        } else if (id == R.id.nav_navigation) {
-            //open MapsActivity to configure the navigation
-            startActivity(new Intent(MainActivity.this, MapsActivity.class));
-        } else if (id == R.id.nav_about) {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
-        } else if (id == R.id.nav_configurations) {
-            vf.setDisplayedChild(2);
-            configContentInit();
-        } else if (id == R.id.nav_about) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
 
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_ACCESS_FINE_LOCATION);
+
+
+            }
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQUEST_ACCESS_COARSE_LOCATION);
+
+
+            }
+        }
+        Log.d("DEBUG","Cheguei aqui");
+
+        if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED ){
+            // Handle navigation view item clicks here.
+            int id = item.getItemId();
+
+            if (id == R.id.run_info) {
+                //flip layout
+                vf.setDisplayedChild(1);
+                runInfoHandler();
+            } else if (id == R.id.nav_navigation) {
+                //open MapsActivity to configure the navigation
+                startActivity(new Intent(MainActivity.this, MapsActivity.class));
+            } else if (id == R.id.nav_about) {
+
+            } else if (id == R.id.nav_configurations) {
+                vf.setDisplayedChild(2);
+                configContentInit();
+            } else if (id == R.id.nav_about) {
+
+            }
+
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+        }
+
         return true;
     }
 
