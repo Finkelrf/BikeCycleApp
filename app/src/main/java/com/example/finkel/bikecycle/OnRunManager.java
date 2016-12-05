@@ -34,15 +34,29 @@ public class OnRunManager  {
     private static BluetoothCommunicator bc;
     private static int arrowPosition = 0;
     private static int distanceToDestination = 10000;
+    private static Location destination = null;
 
 
-    private static void setArrowPosition(int p){
-        arrowPosition = p;
+    public static void setArrowPosition(int arrowPosition) {
+        OnRunManager.arrowPosition = arrowPosition;
     }
 
-    private static void setDistanceToDestination(int p){
-        distanceToDestination = p;
+    public static void setDistanceToDestination(int distanceToDestination) {
+        OnRunManager.distanceToDestination = distanceToDestination;
     }
+
+
+    public static Location getDestination() {
+        return destination;
+    }
+
+    public static void setDestination(Location destination) {
+        OnRunManager.destination = destination;
+    }
+
+
+
+
 
     private static INFO nowShowing = INFO.SPEED;
     public enum INFO{
@@ -137,7 +151,7 @@ public class OnRunManager  {
 
     public static void sendNowShowingInfo(){
         if(bc != null) {
-            switch (nowShowing) {
+            /*switch (nowShowing) {
                 case DIST_TO_TURN:
                     bc.sendDisplay("" + NavigationManager.getDistanceToNextTurn(), bm);
                     break;
@@ -149,7 +163,8 @@ public class OnRunManager  {
                     break;
             }
             bc.sendDirection(NavigationManager.getNextTurn().toString(),NavigationManager.getDistanceToNextTurn(),bm);
-
+            */
+            bc.sendArrowPos(OnRunManager.arrowPosition, bm);
         }
     }
 

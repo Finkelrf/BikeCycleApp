@@ -1,6 +1,7 @@
 package com.example.finkel.bikecycle;
 
 import android.content.Context;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -78,6 +79,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     try {
                         CoordinateDownloader c = new CoordinateDownloader();
                         destination = c.execute(et.getText()).get();
+                        Location l = new Location("");
+                        l.setLatitude(destination.latitude);
+                        l.setLongitude(destination.longitude);
+                        OnRunManager.setDestination(l);
 
                         if (destination != null) {
                             //show destination in map
