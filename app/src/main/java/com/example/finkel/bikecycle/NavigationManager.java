@@ -218,7 +218,7 @@ public class NavigationManager extends AsyncTask<Object, Integer, String>  {
                 //turn point may be passed
                 if(lastDistanceToTurn>OnRunManager.getLastLoc().getAccuracy()){
                     //TODO recalculate
-                    LiveLogger.setLog("You must recalculate route");
+                    //LiveLogger.setLog("You must recalculate route");
                     return 0.0;
                 }else{
                     //turn point has been passed

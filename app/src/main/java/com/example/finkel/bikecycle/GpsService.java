@@ -36,42 +36,56 @@ public class GpsService extends Service
         @Override
         public void onLocationChanged(Location location)
         {
-            Log.d(TAG, "onLocationChanged: " + location);
-            mLastLocation.set(location);
-            OnRunManager.setLastLocation(location);
-            if(OnRunManager.getDestination() != null) {
-                float arrowPos = OnRunManager.getLastLoc().bearingTo(OnRunManager.getDestination());
-                //OnRunManager.setArrowPosition();
-                Log.d("DEBUG", "" + arrowPos);
-            }
+            if(location.distanceTo(mLastLocation)>location.getAccuracy()) {
+                Log.d(TAG, "onLocationChanged: " + location);
 
-
-            if(!OnRunManager.isLocListEmpty()){
-                //check if the distance between points is greater than a threshold (accuracy in this case)
-                if(location.distanceTo(OnRunManager.getLastLoc())>location.getAccuracy()){
-                    OnRunManager.addOnLocList(new Location(location));
-                    //update distance to turn, if navigation ON
-                    double distNextTurn = NavigationManager.getDistanceToNextTurn();
-                    if(distNextTurn>0){
-                        //did not passed turn point
-                        //update distance to BT and UI
-                    }else if(distNextTurn<0){
-                        //passed turn point
-                        NavigationManager.getNextDirection();
-                        //update distance and new turn to BT and UI
-                        //Actually UI updates by itself
+                if (OnRunManager.getDestination() != null && OnRunManager.getLastLoc() != null) {
+                    float bearingMov = OnRunManager.getLastLoc().bearingTo(location);
+                    float bearingDest = location.bearingTo(OnRunManager.getDestination());
+                    int arrowPos = Math.round(bearingMov - bearingDest);
+                    if (arrowPos < 0) {
+                        arrowPos += 360;
                     }
-                    LiveLogger.setLog("New Location");
+                    int dist = Math.round(location.distanceTo(OnRunManager.getDestination()));
+                    OnRunManager.setDistanceToDestination(dist);
+                    OnRunManager.setArrowPosition(arrowPos);
 
-                    //update loc on map
 
+                    Log.d("DEBUG", "" + "bearingMov: " + bearingMov);
+                    Log.d("DEBUG", "" + "bearingDest: " + bearingDest);
+                    Log.d("DEBUG", "" + "arrow pos: " + OnRunManager.getArrowPosition());
                 }
-            }else{
-                //set the first location
-                OnRunManager.addOnLocList(new Location(location));
-                LiveLogger.setLog("First Location");
-            }
 
+                mLastLocation.set(location);
+                OnRunManager.setLastLocation(location);
+
+
+                if (!OnRunManager.isLocListEmpty()) {
+                    //check if the distance between points is greater than a threshold (accuracy in this case)
+                    if (location.distanceTo(OnRunManager.getLastLoc()) > location.getAccuracy()) {
+                        OnRunManager.addOnLocList(new Location(location));
+                        //update distance to turn, if navigation ON
+                        double distNextTurn = NavigationManager.getDistanceToNextTurn();
+                        if (distNextTurn > 0) {
+                            //did not passed turn point
+                            //update distance to BT and UI
+                        } else if (distNextTurn < 0) {
+                            //passed turn point
+                            NavigationManager.getNextDirection();
+                            //update distance and new turn to BT and UI
+                            //Actually UI updates by itself
+                        }
+                        //LiveLogger.setLog("New Location");
+
+                        //update loc on map
+
+                    }
+                } else {
+                    //set the first location
+                    OnRunManager.addOnLocList(new Location(location));
+                    LiveLogger.setLog("First Location");
+                }
+            }
 
         }
 

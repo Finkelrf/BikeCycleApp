@@ -27,6 +27,7 @@ import android.widget.ViewFlipper;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 
@@ -111,7 +112,11 @@ public class MainActivity extends AppCompatActivity
         messageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bc.startDemo(bm);
+                Random rand=new Random();
+                int randomNum = rand.nextInt((360 - 0) + 1) + 0;
+                LiveLogger.setLog(""+randomNum);
+                //bc.sendArrowPos(randomNum,bm);
+                bc.sendDistance(10,bm);
                 // startNavigationTest();
 
             }

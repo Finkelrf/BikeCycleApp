@@ -32,7 +32,7 @@ public class BluetoothCommunicator {
         if(bm != null) {
             if (bm.isConnected()) {
                 bm.sendMsg(BT_CMDS.ARROW_POS.toString() + END_CMD_CHAR + pos + FINAL_BYTE);
-                LiveLogger.setLog("cmd send " + BT_CMDS.ARROW_POS.toString() + END_CMD_CHAR + pos + FINAL_BYTE);
+                //LiveLogger.setLog("cmd send " + BT_CMDS.ARROW_POS.toString() + END_CMD_CHAR + pos + FINAL_BYTE);
                 return true;
             } else {
                 LiveLogger.setLog("bt not connected");
@@ -48,7 +48,7 @@ public class BluetoothCommunicator {
         if(bm != null) {
             if (bm.isConnected()) {
                 bm.sendMsg(BT_CMDS.DISTANCE.toString() + END_CMD_CHAR + dist + FINAL_BYTE);
-                LiveLogger.setLog("cmd send " + BT_CMDS.DISTANCE.toString() + END_CMD_CHAR + dist + FINAL_BYTE);
+               // LiveLogger.setLog("cmd send " + BT_CMDS.DISTANCE.toString() + END_CMD_CHAR + dist + FINAL_BYTE);
                 return true;
             } else {
                 LiveLogger.setLog("bt not connected");

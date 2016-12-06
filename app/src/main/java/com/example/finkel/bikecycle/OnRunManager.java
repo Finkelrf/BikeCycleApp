@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -35,6 +36,7 @@ public class OnRunManager  {
     private static int arrowPosition = 0;
     private static int distanceToDestination = 10000;
     private static Location destination = null;
+    private static int btDataIndex = 0;
 
 
     public static void setArrowPosition(int arrowPosition) {
@@ -59,6 +61,11 @@ public class OnRunManager  {
 
 
     private static INFO nowShowing = INFO.SPEED;
+
+    public static int getArrowPosition() {
+        return arrowPosition;
+    }
+
     public enum INFO{
         SPEED,
         TOTAl_DISTANCE,
@@ -164,7 +171,25 @@ public class OnRunManager  {
             }
             bc.sendDirection(NavigationManager.getNextTurn().toString(),NavigationManager.getDistanceToNextTurn(),bm);
             */
-            bc.sendArrowPos(OnRunManager.arrowPosition, bm);
+            //Random rand=new Random();
+            //int randomNum = rand.nextInt((360 - 0) + 1) + 0;
+            //int randDist = rand.nextInt((2500 - 0) + 1) + 0;
+            //bc.sendArrowPos(OnRunManager.arrowPosition, bm);
+
+            LiveLogger.setLog("Arrow: "+OnRunManager.arrowPosition+"Dist: "+OnRunManager.distanceToDestination);
+            switch (btDataIndex){
+                case 0:
+                    btDataIndex = 1;
+                    bc.sendArrowPos(OnRunManager.arrowPosition, bm);
+                    break;
+
+                case 1:
+                    btDataIndex = 0;
+                    bc.sendDistance(OnRunManager.distanceToDestination,bm);
+                    break;
+            }
+
+
         }
     }
 

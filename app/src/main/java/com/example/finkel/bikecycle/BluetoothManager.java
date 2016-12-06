@@ -59,7 +59,7 @@ public class BluetoothManager {
                             String sbprint = sb.substring(0, endOfLineIndex);				// extract string
                             sb.delete(0, sb.length());										// and clear
                             //TODO processar msg e deletar esse livelog
-                            Log.d("DEBUGBT",sbprint);
+                            Log.d("DEBUGBTRCV",sbprint);
                             LiveLogger.setLog(sbprint);
                         }
                         //Log.d(TAG, "...String:"+ sb.toString() +  "Byte:" + msg.arg1 + "...");
